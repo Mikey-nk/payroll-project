@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Net Pay Calculator</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            background-image: url('tax-burden-concept-83mbpi716fmqv3rc-83mbpi716fmqv3rc.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .navbar {
+            display: flex;
+            background-color: #333;
+            padding: 10px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            padding: 14px 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .navbar a:hover {
+            background-color: #575757;
+            color: #ffcc00;
+        }
+
+        .navbar .menu-toggle {
+            display: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .navbar-links {
+            display: flex;
+            flex-grow: 1;
+        }
+
+        .navbar-links a {
+            flex: 1;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .navbar-links {
+                display: none;
+                flex-direction: column;
+                background-color: #333;
+                width: 100%;
+            }
+
+            .navbar-links.active {
+                display: flex;
+            }
+
+            .navbar .menu-toggle {
+                display: block;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="navbar">
+        <span class="menu-toggle" onclick="toggleMenu()">☰</span>
+        <div class="navbar-links">
+            <a href="#home">Home</a>
+            <a href="#about-us">About Us</a>
+            <a href="#how-to-use">How to Use</a>
+        </div>
+    </div>
+
+
+    <div class="container">
+        <h1>Net Pay Calculator</h1>
+        <div class="form-group">
+            <label for="basicSalary">Basic Salary (KES):</label>
+            <input type="number" id="basicSalary" placeholder="Enter basic salary">
+        </div>
+        <div class="form-group">
+            <label for="benefits">Benefits (KES):</label>
+            <input type="number" id="benefits" placeholder="Enter benefits">
+        </div>
+        <button onclick="calculateNetPay()">Calculate</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Result (KES)</th>
+                </tr>
+            </thead>
+            <tbody id="results">
+                <tr>
+                    <td>Gross Salary</td>
+                    <td id="grossSalary">-</td>
+                </tr>
+                <tr>
+                    <td>NSSF</td>
+                    <td id="nssf">-</td>
+                </tr>
+                <tr>
+                    <td>Taxable Income</td>
+                    <td id="taxableIncome">-</td>
+                </tr>
+                <tr>
+                    <td>PAYE</td>
+                    <td id="paye">-</td>
+                </tr>
+                <tr>
+                    <td>NHIF</td>
+                    <td id="nhif">-</td>
+                </tr>
+                <tr>
+                    <td>Net Pay</td>
+                    <td id="netPay">-</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <script>
+        function toggleMenu() {
+            const navbarLinks = document.querySelector('.navbar-links');
+            navbarLinks.classList.toggle('active');
+        }
+
+        function calculateNetPay() {
+            const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
+            const benefits = parseFloat(document.getElementById('benefits').value) || 0;
+
+            const grossSalary = basicSalary + benefits;
+            const nssf = Math.min(grossSalary * 0.06, 360);
+            const taxableIncome = grossSalary - nssf;
+
+            let paye = 0;
+            if (taxableIncome <= 24000) {
+                paye = taxableIncome * 0.1;
+            } else if (taxableIncome <= 32333) {
+                paye = 2400 + (taxableIncome - 24000) * 0.25;
+            } else {
+                paye = 2400 + 2083.25 + (taxableIncome - 32333) * 0.3;
+            }
+
+            let nhif = 0;
+            if (grossSalary <= 5999) nhif = 150;
+            else if (grossSalary <= 7999) nhif = 300;
+            else if (grossSalary <= 11999) nhif = 400;
+            else if (grossSalary <= 14999) nhif = 500;
+            else if (grossSalary <= 19999) nhif = 600;
+            else if (grossSalary <= 24999) nhif = 750;
+            else if (grossSalary <= 29999) nhif = 850;
+            else if (grossSalary <= 34999) nhif = 900;
+            else if (grossSalary <= 39999) nhif = 950;
+            else if (grossSalary <= 44999) nhif = 1000;
+            else if (grossSalary <= 49999) nhif = 1100;
+            else if (grossSalary <= 59999) nhif = 1200;
+            else if (grossSalary <= 69999) nhif = 1300;
+            else if (grossSalary <= 79999) nhif = 1400;
+            else if (grossSalary <= 89999) nhif = 1500;
+            else if (grossSalary <= 99999) nhif = 1600;
+            else nhif = 1700;
+
+            const netPay = grossSalary - nssf - paye - nhif;
+
+            document.getElementById('grossSalary').textContent = grossSalary.toLocaleString();
+            document.getElementById('nssf').textContent = nssf.toLocaleString();
+            document.getElementById('taxableIncome').textContent = taxableIncome.toLocaleString();
+            document.getElementById('paye').textContent = paye.toLocaleString();
+            document.getElementById('nhif').textContent = nhif.toLocaleString();
+            document.getElementById('netPay').textContent = netPay.toLocaleString();
+            document.getElementById('netPay').style.fontSize = '24px';
+            document.getElementById('netPay').style.fontWeight = 'bold';
+        }
+    </script>
+</body>
+
+</html>
